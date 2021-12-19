@@ -5,7 +5,13 @@ const sourcemaps = require('gulp-sourcemaps');
 
 const proj = ts.createProject('./tsconfig.json');
 
-gulp.task('build', function () {
+gulp.task('build:dts', function () {
+    return proj.src()
+        .pipe(proj())
+        .pipe(gulp.dest('dist'));
+});
+
+gulp.task('build:js', function () {
     return proj.src()
         .pipe(sourcemaps.init())
         .pipe(proj())
@@ -13,6 +19,8 @@ gulp.task('build', function () {
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('dist'));
 });
+
+gulp.task('build', gulp.series('build:js', 'build:dts'))
 
 gulp.task('clean', function () {
     return gulp.src(['dist'], {read: false, allowEmpty:true})

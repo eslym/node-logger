@@ -1,16 +1,19 @@
 {
-  "name": "",
-  "version": "",
-  "description": "",
-  "main": "index.js",
+  "name": "eslym-logger",
+  "version": "1.0.0",
+  "description": "My fancy logger",
+  "main": "dist/index.js",
   "scripts": {
     "prod": "NODE_ENV=production node index.js",
     "test": "node index.js",
     "build": "gulp build",
     "watch": "gulp watch"
   },
-  "author": "",
-  "license": "ISC",
+  "files": [
+    "dist/**"
+  ],
+  "author": "0nepeop1e",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^16.10.9",
     "gulp": "^4.0.2",
