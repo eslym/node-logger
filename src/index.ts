@@ -27,7 +27,7 @@ function pad(n: number, digit: number) {
 }
 
 function formatDate(time: Date) {
-    return `[${time.getFullYear()}-${pad(time.getMonth() + 1, 2)}-${pad(time.getDay(), 2)} ` +
+    return `[${time.getFullYear()}-${pad(time.getMonth() + 1, 2)}-${pad(time.getDate(), 2)} ` +
         `${pad(time.getHours(), 2)}:${pad(time.getMinutes(), 2)}:${pad(time.getSeconds(), 2)}]`;
 }
 
