@@ -1,4 +1,4 @@
-# eslym-logger
+# @eslym/logger
 Just my fancy logger, nothing special
 
 ```shell
@@ -7,14 +7,14 @@ npm install eslym-logger
 
 ## Basic usage
 ```ts
-import {logger} from 'eslym-logger';
+import {logger} from '@eslym/logger';
 logger.log('This is log');
 logger.logWith('DATABASE', 'This is log for database');
 ```
 
 ## Advance usage?
 ```ts
-import {Logger, TextLogging, InspectorLogging, createAppendStream} from 'eslym-logger';
+import {Logger, TextLogging, InspectorLogging, createAppendStream} from '@eslym/logger';
 
 const logger = new Logger();
 

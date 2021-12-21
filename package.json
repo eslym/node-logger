@@ -1,5 +1,5 @@
 {
-  "name": "eslym-logger",
+  "name": "@eslym/logger",
   "version": "1.0.0",
   "description": "My fancy logger",
   "main": "dist/index.js",
