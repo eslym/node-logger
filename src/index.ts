@@ -2,6 +2,8 @@ import EventEmitter = require("events");
 import * as util from "util";
 import * as os from "os";
 import * as inspector from "inspector";
+import {PathLike, createWriteStream} from "fs";
+import {Writable} from "stream";
 
 const ansi = {
     reset: '\x1B[0m',
@@ -15,10 +17,10 @@ export interface TextLoggingOptions {
     color?: boolean,
     indent?: number,
     name?: string,
-    log?: NodeJS.WritableStream,
-    info?: NodeJS.WritableStream,
-    warn?: NodeJS.WritableStream,
-    error?: NodeJS.WritableStream,
+    log?: NodeJS.WritableStream | false,
+    info?: NodeJS.WritableStream | false,
+    warn?: NodeJS.WritableStream | false,
+    error?: NodeJS.WritableStream | false,
 }
 
 function pad(n: number, digit: number) {
@@ -36,14 +38,6 @@ type LogFnWithName = (this: Logger, scope: string, ...data: any) => void;
 
 export type LogLevel = 'log' | 'info' | 'warn' | 'error';
 
-export declare interface Logger {
-    on(event: 'record', listener: (time: Date, level: LogLevel, data: any, scope?: string) => any): this;
-
-    once(event: 'record', listener: (time: Date, level: LogLevel, data: any, scope?: string) => any): this;
-
-    emit(event: 'record', time: Date, level: LogLevel, data: any, scope?: string): boolean;
-}
-
 export class Logger extends EventEmitter {
     readonly log: LogFn;
     readonly info: LogFn;
@@ -58,6 +52,14 @@ export class Logger extends EventEmitter {
     constructor() {
         super();
     }
+}
+
+export declare interface Logger {
+    on(event: 'record', listener: (time: Date, level: LogLevel, data: any, scope?: string) => any): this;
+
+    once(event: 'record', listener: (time: Date, level: LogLevel, data: any, scope?: string) => any): this;
+
+    emit(event: 'record', time: Date, level: LogLevel, data: any, scope?: string): boolean;
 }
 
 for (let level of ['log', 'info', 'warn', 'error']) {
@@ -94,8 +96,29 @@ const config = {
     },
 }
 
+class AppendStream extends Writable{
+    readonly #path: PathLike;
+
+    constructor(path: PathLike) {
+        super();
+        this.#path = path;
+    }
+
+    _write(chunk: any, encoding: BufferEncoding, callback: (error?: (Error | null)) => void) {
+        let stream = createWriteStream(this.#path, {flags: 'a'});
+        let res = stream.write(chunk, encoding, callback);
+        stream.close();
+        return res;
+    }
+}
+
+export function createAppendStream(path: PathLike){
+    return new AppendStream(path);
+}
+
 export function TextLogging(options: TextLoggingOptions = {}) {
     return (time: Date, level: LogLevel, data: any, scope?: string) => {
+        if(options[level] === false) return;
         let log = (options.color === undefined || options.color) ? config[level].color : '';
         log += formatDate(time);
         if (options.name) log += `[${options.name}]`;
@@ -103,9 +126,10 @@ export function TextLogging(options: TextLoggingOptions = {}) {
         if (scope) log += `[${scope}]`;
         log += typeof data === 'string' ? data : util.inspect(data, false, 2, false);
         let indent = " ".repeat(options.indent ?? 4) + os.EOL;
-        let io = (options[level] ?? config[level].io);
+        let io = (options[level] as NodeJS.WritableStream ?? config[level].io);
         io.write(log.replace(/\r?\n|\n?\r/g, indent));
-        io.write(os.EOL + ansi.reset);
+        io.write(os.EOL);
+        if(options.color === undefined || options.color) io.write(ansi.reset);
     }
 }
 
