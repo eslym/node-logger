@@ -2,7 +2,7 @@
 Just my fancy logger, nothing special
 
 ```shell
-npm install eslym-logger
+npm install @eslym/logger
 ```
 
 ## Basic usage
